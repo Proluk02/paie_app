@@ -49,7 +49,7 @@ class _MainPageState extends State {
 
   final List<Widget> _pages = const [
     AccueilPage(),
-    PaiementsPage(),
+    PaiementsPage(matricule: ''),
     StatistiquesPage(),
   ];
 

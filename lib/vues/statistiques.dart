@@ -25,9 +25,9 @@ class _StatistiquesPageState extends State<StatistiquesPage> {
     try {
       final db = await _bdService.database;
       final paiements = await db.query('paiements');
-      print('Nombre de paiements récupérés : ${paiements.length}');
+      // print('Nombre de paiements récupérés : ${paiements.length}');
 
-      final formatMois = DateFormat('MMM');
+      final formatMois = DateFormat('MMM'); // Ex: Jan, Feb...
 
       Map<String, double> resume = {};
       for (var p in paiements) {
@@ -41,7 +41,6 @@ class _StatistiquesPageState extends State<StatistiquesPage> {
           resume[mois] = (resume[mois] ?? 0) + (montantNum as num).toDouble();
         }
       }
-      print('Résumé paiements par mois : $resume');
 
       if (!mounted) return;
       setState(() {
@@ -49,14 +48,14 @@ class _StatistiquesPageState extends State<StatistiquesPage> {
         _loading = false;
       });
     } catch (e, stacktrace) {
-      print('Erreur lors du chargement des données: $e');
-      print(stacktrace);
       if (mounted) {
         setState(() {
           _loading = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur lors du chargement des statistiques')),
+          SnackBar(
+            content: Text('Erreur lors du chargement des statistiques: $e'),
+          ),
         );
       }
     }
@@ -89,7 +88,13 @@ class _StatistiquesPageState extends State<StatistiquesPage> {
           BarChartRodData(
             toY: montant,
             width: 16,
-            color: montant > 0 ? Colors.blue : Colors.grey,
+            color: montant > 0 ? Colors.blueAccent : Colors.grey.shade300,
+            borderRadius: BorderRadius.circular(6),
+            backDrawRodData: BackgroundBarChartRodData(
+              show: true,
+              toY: 1000, // hauteur max arbitraire pour uniformiser
+              color: Colors.grey.shade200,
+            ),
           ),
         ],
       );
@@ -97,9 +102,28 @@ class _StatistiquesPageState extends State<StatistiquesPage> {
   }
 
   Widget _moisTitle(double value, TitleMeta meta) {
-    final mois = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
-    if (value >= 0 && value < mois.length) {
-      return Text(mois[value.toInt()], style: const TextStyle(fontSize: 10));
+    const moisAbr = [
+      'J',
+      'F',
+      'M',
+      'A',
+      'M',
+      'J',
+      'J',
+      'A',
+      'S',
+      'O',
+      'N',
+      'D',
+    ];
+    if (value >= 0 && value < moisAbr.length) {
+      return SideTitleWidget(
+        child: Text(
+          moisAbr[value.toInt()],
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+        ),
+        meta: meta, // <-- obligatoire maintenant
+      );
     }
     return const SizedBox.shrink();
   }
@@ -107,32 +131,59 @@ class _StatistiquesPageState extends State<StatistiquesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Statistiques')),
+      appBar: AppBar(title: const Text('Statistiques des paiements')),
       body:
           _loading
               ? const Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(
+              : Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: BarChart(
                   BarChartData(
+                    maxY:
+                        (paiementsParMois.values.isNotEmpty)
+                            ? (paiementsParMois.values.reduce(
+                                  (a, b) => a > b ? a : b,
+                                ) *
+                                1.2)
+                            : 100,
                     titlesData: FlTitlesData(
                       bottomTitles: AxisTitles(
                         sideTitles: SideTitles(
                           showTitles: true,
                           getTitlesWidget: _moisTitle,
+                          reservedSize: 30,
                         ),
                       ),
                       leftTitles: AxisTitles(
-                        sideTitles: SideTitles(showTitles: true),
-                      ),
-                      rightTitles: AxisTitles(
-                        sideTitles: SideTitles(showTitles: false),
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          interval: 100,
+                          reservedSize: 40,
+                          getTitlesWidget: (value, meta) {
+                            return Text(
+                              value.toInt().toString(),
+                              style: const TextStyle(fontSize: 10),
+                            );
+                          },
+                        ),
                       ),
                       topTitles: AxisTitles(
                         sideTitles: SideTitles(showTitles: false),
                       ),
+                      rightTitles: AxisTitles(
+                        sideTitles: SideTitles(showTitles: false),
+                      ),
                     ),
                     borderData: FlBorderData(show: false),
+                    gridData: FlGridData(
+                      show: true,
+                      horizontalInterval: 100,
+                      getDrawingHorizontalLine:
+                          (value) => FlLine(
+                            color: Colors.grey.shade300,
+                            strokeWidth: 1,
+                          ),
+                    ),
                     barGroups: _genererBarGroups(),
                   ),
                 ),
