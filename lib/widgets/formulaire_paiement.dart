@@ -1,4 +1,7 @@
+// lib/widgets/formulaire_paiement.dart
+
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class FormulairePaiement extends StatelessWidget {
   final TextEditingController montantController;
@@ -47,7 +50,21 @@ class FormulairePaiement extends StatelessWidget {
                 labelText: 'Date (aaaa-mm-jj)',
                 prefixIcon: Icon(Icons.date_range),
               ),
-              keyboardType: TextInputType.datetime,
+              readOnly: true,
+              onTap: () async {
+                DateTime? pickedDate = await showDatePicker(
+                  context: context,
+                  initialDate:
+                      DateTime.tryParse(dateController.text) ?? DateTime.now(),
+                  firstDate: DateTime(2020),
+                  lastDate: DateTime(2100),
+                );
+                if (pickedDate != null) {
+                  dateController.text = DateFormat(
+                    'yyyy-MM-dd',
+                  ).format(pickedDate);
+                }
+              },
             ),
             const SizedBox(height: 24),
             SizedBox(

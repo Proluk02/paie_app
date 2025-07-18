@@ -1,3 +1,5 @@
+// lib/widgets/formulaire_etudiant.dart
+
 import 'package:flutter/material.dart';
 
 class FormulaireEtudiant extends StatelessWidget {
@@ -62,18 +64,40 @@ class FormulaireEtudiant extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 14),
-            TextField(
-              controller: sexeController,
+            DropdownButtonFormField<String>(
+              value:
+                  sexeController.text.isNotEmpty ? sexeController.text : null,
+              items:
+                  ['Masculin', 'Féminin']
+                      .map(
+                        (val) => DropdownMenuItem(value: val, child: Text(val)),
+                      )
+                      .toList(),
+              onChanged: (val) {
+                sexeController.text = val!;
+              },
               decoration: const InputDecoration(
                 labelText: 'Sexe',
                 prefixIcon: Icon(Icons.wc),
               ),
             ),
             const SizedBox(height: 14),
-            TextField(
-              controller: classeController,
+            DropdownButtonFormField<String>(
+              value:
+                  classeController.text.isNotEmpty
+                      ? classeController.text
+                      : null,
+              items:
+                  ['G1 Info', 'G2 Info', 'L1 Info', 'L2 Info']
+                      .map(
+                        (val) => DropdownMenuItem(value: val, child: Text(val)),
+                      )
+                      .toList(),
+              onChanged: (val) {
+                classeController.text = val!;
+              },
               decoration: const InputDecoration(
-                labelText: 'Classe',
+                labelText: 'Promotion',
                 prefixIcon: Icon(Icons.class_),
               ),
             ),

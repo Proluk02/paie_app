@@ -1,4 +1,3 @@
-// Formulaire ajout paiement
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../modeles/etudiant.dart';
@@ -22,22 +21,38 @@ class _AjouterPaiementPageState extends State<AjouterPaiementPage> {
     text: DateFormat('yyyy-MM-dd').format(DateTime.now()),
   );
 
-  void _ajouterPaiement() async {
+  Future<void> _ajouterPaiement() async {
     final paiement = Paiement(
       etudiantId: widget.etudiant.id!,
       montant: double.tryParse(montantController.text) ?? 0.0,
       motif: motifController.text,
       date: dateController.text,
     );
-    await _bd.ajouterPaiement(paiement);
-    Navigator.pop(context);
+    try {
+      await _bd.ajouterPaiement(paiement);
+      if (mounted) Navigator.pop(context, true);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erreur : $e')));
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    montantController.dispose();
+    motifController.dispose();
+    dateController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Ajouter un paiement')),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: FormulairePaiement(
           montantController: montantController,

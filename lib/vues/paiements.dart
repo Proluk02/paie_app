@@ -1,5 +1,3 @@
-// TODO Implement this library.
-// paiements.dart
 import 'package:flutter/material.dart';
 
 class PaiementsPage extends StatelessWidget {

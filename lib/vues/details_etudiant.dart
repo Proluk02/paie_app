@@ -1,4 +1,3 @@
-// Page détails étudiant + paiements
 import 'package:flutter/material.dart';
 import '../modeles/etudiant.dart';
 import '../modeles/paiement.dart';
